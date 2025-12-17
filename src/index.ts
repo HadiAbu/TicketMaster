@@ -16,6 +16,10 @@ const app = express();
 app.use(express.json());
 app.use(requestLogger);
 
+// Root route for browser checks or health probes
+app.get('/', (req, res) => {
+  res.json({ message: 'TicketMaster API - visit /api for endpoints' });
+});
 app.use("/api", apiRouter);
 
 app.use(errorHandler);

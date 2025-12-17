@@ -21,24 +21,22 @@
   },
   "homepage": "https://github.com/HadiAbu/TicketMaster#readme",
   "dependencies": {
-    "@prisma/client": "^7.1.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^4.22.1",
     "pg": "^8.16.3",
-    "prisma": "^7.1.0",
     "redis": "^5.10.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {
-    "express": "^4.18.2",
-    "ioredis": "^5.3.2",
-    "@prisma/client": "^5.11.0",
+    "@prisma/client": "^4.16.2",
     "@types/express": "^4.17.25",
     "@types/node": "^20.19.27",
     "@types/pg": "^8.16.0",
     "eslint": "^9.39.2",
+    "express": "^4.18.2",
     "prettier": "^3.7.4",
+    "prisma": "^4.16.2",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"

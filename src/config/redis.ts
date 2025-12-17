@@ -1,15 +1,14 @@
-import Redis from "ioredis";
+import { createClient } from "redis";
 
-const redis = new Redis(process.env.REDIS_URL);
-
-redis.on("connect", () => {
-  // eslint-disable-next-line no-console
-  console.log("Redis client connected");
+const redisClient = createClient({
+  url: process.env.REDIS_URL || "redis://localhost:6379",
 });
 
-redis.on("error", (err) => {
-  // eslint-disable-next-line no-console
-  console.error("Redis error", err);
-});
+redisClient.on("error", (err) => console.error("Redis Client Error", err));
 
-export default redis;
+export const connectRedis = async () => {
+  await redisClient.connect();
+  console.log("🚀 Redis Connected");
+};
+
+export default redisClient;
