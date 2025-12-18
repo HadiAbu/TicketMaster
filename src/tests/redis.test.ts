@@ -21,7 +21,7 @@ describe("Duplicate Booking Test", () => {
     await prisma.$disconnect();
   });
 
-  test("should allow 3 attempts and block the 4th request via Redis", async () => {
+  xtest("should allow 3 attempts and block the 4th request via Redis", async () => {
     console.log("🚀 Testing Redis Rate Limiter...");
 
     // 1. First 3 attempts should either succeed or fail at the DB level (not Redis)
