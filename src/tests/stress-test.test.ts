@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // 1. Increase timeout globally for this file to 30 seconds
-jest.setTimeout(30000);
+jest.setTimeout(10000);
 
 describe("Ticketing Stress Test", () => {
   // 2. Properly close the database handle after tests
