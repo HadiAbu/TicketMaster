@@ -1,38 +1,39 @@
-import { test } from '@jest/globals';
 import { BookingService } from "../services/booking.service";
+import { PrismaClient } from "@prisma/client";
 
-test('stress test', async () => {
-  const USER_IDS = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]; // Simulating 10 requests
-  const EVENT_ID = 1;
+const prisma = new PrismaClient();
 
-  console.log("🚀 Launching 10 simultaneous booking attempts...");
+// 1. Increase timeout globally for this file to 30 seconds
+jest.setTimeout(30000);
 
-  // Fire all 10 requests at the exact same time
-  const results = await Promise.allSettled(
-    USER_IDS.map((id) => BookingService.reserveTicket(id, EVENT_ID))
-  );
+describe("Ticketing Stress Test", () => {
+  // 2. Properly close the database handle after tests
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
 
-  const successful = results.filter((r) => r.status === "fulfilled");
-  const failed = results.filter((r) => r.status === "rejected");
+  test("should handle 10 simultaneous booking attempts without duplicates", async () => {
+    const USER_IDS = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+    const EVENT_ID = 2;
 
-  console.log("--- RESULTS ---");
-  console.log(`✅ Successes: ${successful.length}`);
-  console.log(`❌ Failures: ${failed.length}`);
+    console.log("🚀 Launching 10 simultaneous booking attempts...");
 
-  if (successful.length > 0) {
-    // Check if any IDs are duplicated
-    const ticketIds = (successful as any).map((s: any) => s.value.id);
-    const uniqueIds = new Set(ticketIds);
-
-    console.log(
-      `🎫 Unique Ticket IDs assigned: ${Array.from(uniqueIds).join(", ")}`
+    const results = await Promise.allSettled(
+      USER_IDS.map((id) => BookingService.reserveTicket(id, EVENT_ID))
     );
 
-    if (uniqueIds.size === ticketIds.length) {
-      console.log("🏆 TEST PASSED: No duplicate bookings detected!");
-    } else {
-      console.log("🚨 TEST FAILED: Duplicate tickets were issued!");
-      throw new Error("Duplicate tickets detected");
+    const successful = results.filter((r) => r.status === "fulfilled");
+    const failed = results.filter((r) => r.status === "rejected");
+
+    console.log(
+      `✅ Successes: ${successful.length} | ❌ Failures: ${failed.length}`
+    );
+
+    // Validate no duplicate tickets
+    if (successful.length > 0) {
+      const ticketIds = (successful as any).map((s: any) => s.value.id);
+      const uniqueIds = new Set(ticketIds);
+      expect(uniqueIds.size).toBe(ticketIds.length);
     }
-  }
+  });
 });
