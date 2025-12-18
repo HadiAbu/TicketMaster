@@ -1,4 +1,5 @@
 import { PrismaClient, TicketStatus } from "@prisma/client";
+import { QueueService } from "./queue.service";
 
 const prisma = new PrismaClient();
 
@@ -7,6 +8,14 @@ export const BookingService = {
    * 1. RESERVE: Holds a ticket for 10 minutes
    */
   async reserveTicket(userId: number, eventId: number) {
+    // 🛡️ THE REDIS GATEKEEPER
+    const canProceed = await QueueService.isAllowedInWaitingRoom(userId);
+    if (!canProceed) {
+      throw new Error(
+        "WAITING_ROOM_FULL: Too many requests. Try again in 30s."
+      );
+    }
+
     return await prisma.$transaction(async (tx) => {
       // Find one available ticket using raw SQL to ensure "Row Locking" (FOR UPDATE)
       // This prevents race conditions at the database level.
