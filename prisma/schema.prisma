@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TicketStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -25,12 +31,19 @@ model Event {
 }
 
 model Ticket {
-  id        Int      @id @default(autoincrement())
-  seat      String?
-  price     Float
-  user      User?    @relation(fields: [userId], references: [id])
-  userId    Int?
-  event     Event    @relation(fields: [eventId], references: [id])
-  eventId   Int
-  createdAt DateTime @default(now())
+  id         Int          @id @default(autoincrement())
+  seat       String?
+  price      Float
+  status     TicketStatus @default(AVAILABLE)
+  
+  // High-level fields for the booking challenge
+  reservedAt DateTime?    
+  
+  // Relations
+  userId     Int?
+  user       User?        @relation(fields: [userId], references: [id])
+  eventId    Int
+  event      Event        @relation(fields: [eventId], references: [id])
+  
+  createdAt  DateTime     @default(now())
 }

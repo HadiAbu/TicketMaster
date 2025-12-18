@@ -1,62 +1,42 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, TicketStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const users = [
-    { email: "alice@example.com", name: "Alice" },
-    { email: "bob@example.com", name: "Bob" },
-  ];
+  console.log("🌱 Seeding database...");
 
-  const events = [
-    {
-      title: "PrismaConf 2026",
-      description: "Prisma conference",
-      date: new Date("2026-06-01"),
+  // 1. Create a Test User
+  const user = await prisma.user.upsert({
+    where: { email: "test@example.com" },
+    update: {},
+    create: {
+      email: "test@example.com",
+      name: "Test User",
     },
-    {
-      title: "Concert X",
-      description: "Live concert",
-      date: new Date("2026-09-12"),
-    },
-  ];
-
-  // insert users/events (skip duplicates)
-  await prisma.user.createMany({ data: users, skipDuplicates: true });
-  await prisma.event.createMany({ data: events, skipDuplicates: true });
-
-  const createdUsers = await prisma.user.findMany({
-    where: { email: { in: users.map((u) => u.email) } },
   });
 
-  const createdEvents = await prisma.event.findMany({
-    where: { title: { in: events.map((e) => e.title) } },
+  // 2. Create a Test Event
+  const event = await prisma.event.create({
+    data: {
+      title: "Grand Opening Concert",
+      description: "A massive musical event to test our new booking system!",
+      date: new Date("2025-12-31T20:00:00Z"),
+    },
   });
 
-  // map for easy lookup
-  const userByEmail = Object.fromEntries(createdUsers.map((u) => [u.email, u]));
-  const eventByTitle = Object.fromEntries(
-    createdEvents.map((e) => [e.title, e])
-  );
+  // 3. Create 50 Available Tickets for this event
+  const ticketsData = Array.from({ length: 50 }).map((_, i) => ({
+    seat: `Row A - Seat ${i + 1}`,
+    price: 99.99,
+    status: TicketStatus.AVAILABLE,
+    eventId: event.id,
+  }));
 
-  const tickets = [
-    {
-      seat: "A1",
-      price: 49.99,
-      userId: userByEmail["alice@example.com"].id,
-      eventId: eventByTitle["PrismaConf 2026"].id,
-    },
-    {
-      seat: "B2",
-      price: 79.99,
-      userId: userByEmail["bob@example.com"].id,
-      eventId: eventByTitle["Concert X"].id,
-    },
-  ];
+  await prisma.ticket.createMany({
+    data: ticketsData,
+  });
 
-  await prisma.ticket.createMany({ data: tickets, skipDuplicates: true });
-
-  console.log("Seed completed");
+  console.log(`✅ Seeded: 1 User, 1 Event, and ${ticketsData.length} Tickets.`);
 }
 
 main()
