@@ -52,10 +52,20 @@
       <div id="status"></div>
     </div>
 
-    <div class="box">
+    <!-- <div class="box">
       <h3>User Session</h3>
       <p>Token: <small id="tokenDisplay">None</small></p>
       <button onclick="testProtected()">Try Reserve Ticket (Protected)</button>
+    </div> -->
+    <div id="userSection" class="box" style="display: none">
+      <h3>Welcome, User <span id="displayUserId"></span></h3>
+      <button style="background: #dc3545" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="reserveSection" class="box" style="display: none">
+      <h3>Reserve Tickets</h3>
+      <input type="number" id="eventId" placeholder="Event ID" value="1" />
+      <button onclick="testProtected()">Reserve Ticket</button>
     </div>
 
     <script>
@@ -94,6 +104,72 @@
         const data = await response.json();
         alert(JSON.stringify(data));
       }
+      function parseJwt(token) {
+        try {
+          const base64Url = token.split(".")[1];
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+          return JSON.parse(window.atob(base64));
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function updateUI() {
+        const token = localStorage.getItem("jwt");
+        const authBox = document.querySelector(".box:nth-child(1)"); // The Register/Login box
+        const userSection = document.getElementById("userSection");
+        const reserveSection = document.getElementById("reserveSection");
+
+        if (token) {
+          const decoded = parseJwt(token);
+          const isExpired = decoded.exp * 1000 < Date.now();
+
+          if (!isExpired) {
+            // TOKEN IS VALID
+            authBox.style.display = "none";
+            userSection.style.display = "block";
+            reserveSection.style.display = "block";
+            document.getElementById("displayUserId").innerText = decoded.userId;
+            return;
+          }
+        }
+
+        // TOKEN IS INVALID OR MISSING
+        localStorage.removeItem("jwt"); // Clean up if expired
+        authBox.style.display = "block";
+        userSection.style.display = "none";
+        reserveSection.style.display = "none";
+      }
+
+      async function handleAuth(type) {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const response = await fetch(`/booking/${type}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, name: "User" }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          if (data.token) {
+            localStorage.setItem("jwt", data.token);
+            updateUI(); // Refresh the UI immediately
+          }
+          alert(`${type} Successful!`);
+        } else {
+          alert("Error: " + data.error);
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("jwt");
+        updateUI();
+      }
+
+      // Initialize UI on page load
+      updateUI();
     </script>
   </body>
 </html>
