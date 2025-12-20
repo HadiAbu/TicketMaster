@@ -22,17 +22,21 @@
   },
   "homepage": "https://github.com/HadiAbu/TicketMaster#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^4.22.1",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.16.3",
     "redis": "^5.10.0",
     "zod": "^4.2.1"
   },
   "devDependencies": {
     "@prisma/client": "^4.16.2",
+    "@types/bcryptjs": "^2.4.6",
     "@types/express": "^4.17.25",
     "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.19.27",
     "@types/pg": "^8.16.0",
     "eslint": "^9.39.2",

@@ -12,6 +12,7 @@ async function main() {
     create: {
       email: "test@example.com",
       name: "Test User",
+      password: "password123", // Required field
     },
   });
 
@@ -29,6 +30,7 @@ async function main() {
     seat: `Row A - Seat ${i + 1}`,
     price: 99.99,
     status: TicketStatus.AVAILABLE,
+    reservedAt: null,
     eventId: event.id,
   }));
 
