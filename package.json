@@ -8,6 +8,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "jest",
+    "test:auth": "jest src/tests/auth.test.ts",
     "prisma:generate": "prisma generate",
     "seed": "ts-node --transpile-only prisma/seed.ts"
   },
