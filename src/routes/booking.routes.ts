@@ -12,6 +12,9 @@ const router = Router();
 router.post("/register", async (req: Request, res: Response) => {
   try {
     const { email, password, name } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
     const user = await AuthService.register(email, password, name);
     res.status(201).json({
       message: "New User created in DB",
