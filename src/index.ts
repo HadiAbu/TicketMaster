@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { router as apiRouter } from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import { connectRedis } from "./config/redis";
+import bookingRoutes from "./routes/booking.routes";
 
 dotenv.config();
 
@@ -28,14 +29,21 @@ app.get("/", (req, res) => {
   res.json({ message: "TicketMaster API - visit /api for endpoints" });
 });
 app.use("/api", apiRouter);
+// Mount all routes under /api
+app.use("/booking", bookingRoutes);
 
 app.use(errorHandler);
 
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
-app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Server listening on port ${port}`);
-});
+// --- START SERVER ---
+async function start() {
+  // await connectRedis();
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  });
+}
+
+start();
 
 export default app;

@@ -9,9 +9,24 @@ export const AuthService = {
   // 1. Create a new user with a hashed password
   async register(email: string, pass: string, name?: string) {
     const hashedPassword = await bcrypt.hash(pass, 10);
-    return prisma.user.create({
-      data: { email, password: hashedPassword, name },
-    });
+    const id = Math.floor(Math.random() * 2147483647);
+    const userId = await prisma.user.findUnique({ where: { id: id } });
+    try {
+      if (userId) {
+        throw new Error("User ID collision, try again");
+      } else {
+        return prisma.user.create({
+          data: {
+            email,
+            password: hashedPassword,
+            name,
+            id: id,
+          },
+        });
+      }
+    } catch (err: any) {
+      throw new Error(err.message);
+    }
   },
 
   // 2. Validate credentials and return a Token
