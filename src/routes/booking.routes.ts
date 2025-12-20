@@ -14,7 +14,7 @@ router.post("/register", async (req: Request, res: Response) => {
     const { email, password, name } = req.body;
     const user = await AuthService.register(email, password, name);
     res.status(201).json({
-      message: "User created",
+      message: "New User created in DB",
       userId: user.id,
     });
   } catch (err: any) {
@@ -38,6 +38,8 @@ router.post("/login", async (req: Request, res: Response) => {
 // Reserve a Ticket
 router.post("/reserve", authMiddleware, async (req: any, res: Response) => {
   try {
+    console.log(req.body);
+    console.log(req.user);
     const { eventId } = req.body;
     const userId = req.user.userId;
 

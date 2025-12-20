@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import path from "path";
 import { router as apiRouter } from "./routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import { connectRedis } from "./config/redis";
@@ -23,6 +24,9 @@ const app = express();
 
 app.use(express.json());
 app.use(requestLogger);
+
+// serving the static files of the frontend
+app.use(express.static(path.join(__dirname, "../public")));
 
 // Root route for browser checks or health probes
 app.get("/", (req, res) => {

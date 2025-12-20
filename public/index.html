@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ticketing System Auth</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+      }
+      .box {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        width: 300px;
+      }
+      input {
+        width: 90%;
+        margin: 10px 0;
+        padding: 8px;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        cursor: pointer;
+        background: #007bff;
+        color: white;
+        border: none;
+      }
+      #status {
+        margin-top: 20px;
+        color: green;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <h3>Register / Login</h3>
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="handleAuth('register')">Register</button>
+      <button
+        style="background: #28a745; margin-top: 5px"
+        onclick="handleAuth('login')"
+      >
+        Login
+      </button>
+      <div id="status"></div>
+    </div>
+
+    <div class="box">
+      <h3>User Session</h3>
+      <p>Token: <small id="tokenDisplay">None</small></p>
+      <button onclick="testProtected()">Try Reserve Ticket (Protected)</button>
+    </div>
+
+    <script>
+      async function handleAuth(type) {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const response = await fetch(`/booking/${type}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, name: "User" }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          if (data.token) {
+            localStorage.setItem("jwt", data.token);
+            document.getElementById("tokenDisplay").innerText = "Logged In!";
+          }
+          document.getElementById("status").innerText = `${type} Successful!`;
+        } else {
+          document.getElementById("status").innerText = "Error: " + data.error;
+        }
+      }
+
+      async function testProtected() {
+        const token = localStorage.getItem("jwt");
+        const response = await fetch("/booking/reserve", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ eventId: 1 }),
+        });
+        const data = await response.json();
+        alert(JSON.stringify(data));
+      }
+    </script>
+  </body>
+</html>
